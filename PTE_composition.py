@@ -35,8 +35,8 @@ def read_is_wt(read,ref):
     :param ref:
     :return:
     """
-    trimmed_read = re.search(r'[AGCTN][ACGTN-]+[ACGTN]', str(read))
-    return re.search(str(trimmed_read), str(ref)) is not None
+    trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
+    return re.search(str(trimmed_read.group(1)), str(ref)) is not None
 
 
 def indel_len(sequence, start):
@@ -320,9 +320,11 @@ def count_one_fraction(alignment, refname, debug, start_offset, end_trail):
 
         # trim sequencing read to reference
         ref, read = trim_read(ref, read)
+        print()
 
-        trimmed_read = re.search(r'[AGCTN][ACGTN-]+[ACGTN]', str(read))
-        print(trimmed_read)
+        trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
+
+        print(trimmed_read.group(1))
         printErrors("WT",read,ref,True)
         dna_errors, dna_hgvs, prot_erros = None, None, None
 
