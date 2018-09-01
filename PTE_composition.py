@@ -17,8 +17,8 @@ from Bio import AlignIO, SeqIO
 from Bio.Alphabet import IUPAC
 from Bio.Seq import MutableSeq, translate
 
-from indels.ind import trim_read, findEnds, endMatch, findGap, gapAlign
-from indels.output import print_coloured_diff, printErrors
+from ind import trim_read, findEnds, endMatch, findGap, gapAlign
+from output import print_coloured_diff, printErrors
 
 # Demand Python 3.
 if sys.version_info[0] < 3:
@@ -27,6 +27,17 @@ if sys.version_info[0] < 3:
     sys.exit(1)
 
 # Identifying mutations from fasta alignment
+
+def read_is_wt(read,ref):
+    """
+    Check whether read sequence is exactly equal to wt.
+    :param read:
+    :param ref:
+    :return:
+    """
+    trimmed_read = re.search(r'[AGCTN][ACGTN-]+[ACGTN]', str(read))
+    return re.search(trimmed_read, str(ref)) is not None
+
 
 
 def indel_len(sequence, start):
@@ -310,6 +321,9 @@ def count_one_fraction(alignment, refname, debug, start_offset, end_trail):
 
         # trim sequencing read to reference
         ref, read = trim_read(ref, read)
+        if read_is_wt(read, ref):
+            printErrors("",read,ref,True)
+            continue
         dna_errors, dna_hgvs, prot_erros = None, None, None
 
         try:

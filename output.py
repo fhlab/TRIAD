@@ -15,8 +15,6 @@ def printErrors(errors, read, ref, colouredDiff):
     @param colouredDiff If true, will print a fancy coloured diff instead of a concise error summary.
     """
 
-    errors = list(errors)
-    errors = ' '.join(errors)
     print(errors)
     
     if colouredDiff:
