@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import sys
 import pickle
@@ -320,11 +320,11 @@ def count_one_fraction(alignment, refname, debug, start_offset, end_trail):
 
         # trim sequencing read to reference
         ref, read = trim_read(ref, read)
-        print()
 
         if read_is_wt(read,ref):
             if debug:
                 trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
+                print()
                 print(trimmed_read.group(1))
                 printErrors("WT", read, ref, True)
             continue
