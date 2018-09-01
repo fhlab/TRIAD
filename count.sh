@@ -42,9 +42,6 @@ cat $baseName.$activity.assembled.sam | grep -E "^\S+[	](0|16)" | cut -f 1,10 | 
 cat $baseName.$activity.unassembled.sam | grep -E "^\S+[	](99|147|83|163)" | cut -f 1,10 | awk '{if ($2) print ">"$1,"\n" $2}' >> $baseName.$activity.fa
 echo -e "Extracting proper reads complete"
 
-# Replace all N with . (regex wildcard)
-# sed -i -e 's/N/./g' $baseName.$activity.fa
-#
 # next need to do alignment with needle-all
 if [ -s $baseName.$activity.aln ]
 then
