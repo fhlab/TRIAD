@@ -322,10 +322,12 @@ def count_one_fraction(alignment, refname, debug, start_offset, end_trail):
         ref, read = trim_read(ref, read)
         print()
 
-        trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
-
-        print(trimmed_read.group(1))
-        printErrors("WT",read,ref,True)
+        if read_is_wt(read,ref):
+            trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
+            print(trimmed_read.group(1))
+            printErrors("WT",read,ref,True)
+            continue
+            
         dna_errors, dna_hgvs, prot_erros = None, None, None
 
         try:
