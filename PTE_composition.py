@@ -323,11 +323,12 @@ def count_one_fraction(alignment, refname, debug, start_offset, end_trail):
         print()
 
         if read_is_wt(read,ref):
-            trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
-            print(trimmed_read.group(1))
-            printErrors("WT",read,ref,True)
+            if debug:
+                trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
+                print(trimmed_read.group(1))
+                printErrors("WT", read, ref, True)
             continue
-            
+
         dna_errors, dna_hgvs, prot_erros = None, None, None
 
         try:
@@ -691,13 +692,14 @@ if __name__ == "__main__":
                         default=3, type=int)
     parser.add_argument('-e', '--end_trail', help='Number of nt after end of gene (integer)', required=False, default=0,
                         type=int)
+    parser.add_argument('-o', '--output', help='Filename')
     args = parser.parse_args()
 
     # On the first run, analyse all *.aln files in the target folder and create a dictionary of errors
     # Structure: all_ref[background][fraction][protein mutation] = all data about the mutations
     all_ref = count_multiple_fractions(args.folder, args.baseline, args.debug, args.start_offset, args.end_trail)
-    export_hgvs(all_ref, 'new')
-    with open('S6_d36.p', 'wb') as f:
+    # export_hgvs(all_ref, 'new')
+    with open(args.output +'.p', 'wb') as f:
         pickle.dump(all_ref, f)
 
     # # # On subsequent runs, load in the saved data
