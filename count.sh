@@ -22,13 +22,13 @@ echo -e "\nMapping assembled reads"
 bowtie2 -x $referenceFileBase -U $baseName.$activity.assembled.fastq -S $baseName.$activity.assembled.sam
 
 
-# sort the sam files to get depth per position
-echo -e "Calculating coverage per position..."
-samtools sort -o $baseName.$activity.unassembled.sorted.sam $baseName.$activity.unassembled.sam
-samtools depth -a -m 1000000 $baseName.$activity.unassembled.sorted.sam > $baseName.$activity.unassembled.depth.txt
-samtools sort -o $baseName.$activity.assembled.sorted.sam $baseName.$activity.assembled.sam
-samtools depth -a -m 1000000 $baseName.$activity.assembled.sorted.sam > $baseName.$activity.assembled.depth.txt
-echo -e "Bowtie2 alignment complete"
+## sort the sam files to get depth per position
+#echo -e "Calculating coverage per position..."
+#samtools sort -o $baseName.$activity.unassembled.sorted.sam $baseName.$activity.unassembled.sam
+#samtools depth -a -m 1000000 $baseName.$activity.unassembled.sorted.sam > $baseName.$activity.unassembled.depth.txt
+#samtools sort -o $baseName.$activity.assembled.sorted.sam $baseName.$activity.assembled.sam
+#samtools depth -a -m 1000000 $baseName.$activity.assembled.sorted.sam > $baseName.$activity.assembled.depth.txt
+#echo -e "Bowtie2 alignment complete"
 
 # Takes properly aligned matches and extracts reads
 # I want columns 1 (name) and 10 (read)
@@ -44,15 +44,15 @@ cat $baseName.$activity.unassembled.sam | grep -E "^\S+[	](99|147|83|163)" | cut
 awk 'BEGIN {OFS="\n"} {if ($2~/[AGCTN]{20,}/) {print ">"$1,$2}}' >> $baseName.$activity.fa
 echo -e "Extracting proper reads complete"
 
-# next need to do alignment with needle-all
-if [ -s $baseName.$activity.aln ]
-then
-    rm $baseName.$activity.aln
-fi
-
-needleall -gapopen 15 -gapextend 0.5 -asequence $referenceFileBase.fa -supper1 \
--bsequence $baseName.$activity.fa -supper2 \
--aformat3 fasta -outfile $baseName.$activity.aln -errfile $baseName.$activity.err
-echo -e "Multiple to one alignment complete\n"
+## next need to do alignment with needle-all
+#if [ -s $baseName.$activity.aln ]
+#then
+#    rm $baseName.$activity.aln
+#fi
+#
+#needleall -gapopen 15 -gapextend 0.5 -asequence $referenceFileBase.fa -supper1 \
+#-bsequence $baseName.$activity.fa -supper2 \
+#-aformat3 fasta -outfile $baseName.$activity.aln -errfile $baseName.$activity.err
+#echo -e "Multiple to one alignment complete\n"
 
 echo -e "Done with set $baseName.$activity"
