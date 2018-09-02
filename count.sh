@@ -39,9 +39,10 @@ then
     rm $baseName.$activity.fa
 fi
 cat $baseName.$activity.assembled.sam | grep -E "^\S+[	](0|16)" | cut -f 1,10 | \
-awk 'BEGIN {OFS="\n"} {if ($2~/[AGCTN]{20,}/) {print ">"$1,$2}}' > $baseName.$activity.fa
+awk 'BEGIN {OFS="\n"} {if ($2~/[AGCTN]{20,}/) {print "\n>"$1,$2}}' > $baseName.$activity.blank.fa
 cat $baseName.$activity.unassembled.sam | grep -E "^\S+[	](99|147|83|163)" | cut -f 1,10 | \
-awk 'BEGIN {OFS="\n"} {if ($2~/[AGCTN]{20,}/) {print ">"$1,$2}}' >> $baseName.$activity.fa
+awk 'BEGIN {OFS="\n"} {if ($2~/[AGCTN]{20,}/) {print "\n>"$1,$2}}' >> $baseName.$activity.blank.fa
+awk 'NF' $baseName.$activity.blank.fa > $baseName.$activity.fa
 echo -e "Extracting proper reads complete"
 
 ## next need to do alignment with needle-all
