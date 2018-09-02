@@ -36,7 +36,10 @@ def read_is_wt(read,ref):
     :return:
     """
     trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
-    return re.search(str(trimmed_read.group(1)), str(ref)) is not None
+    if trimmed_read is None:
+        return True
+    else:
+        return re.search(str(trimmed_read.group(1)), str(ref)) is not None
 
 
 def indel_len(sequence, start):
