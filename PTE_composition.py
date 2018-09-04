@@ -7,8 +7,6 @@ import os
 import csv
 import argparse
 import pprint
-import random
-import time
 
 import pandas as pd
 from collections import defaultdict
@@ -135,7 +133,7 @@ def find_DNA_diff(read, ref, verbose=False, start_offset=3, end_trail=3):
     As for HGVS, the starting offset and number of trailing nt are variable
     Letter by letter report mutations in NGS read, all counts 1- based in result (code in 0-count).
     - substitution: 78C = nt 78 in reference is changed to C
-    - deletions: 78d6 = 6 nt deleted after 78: 1-78, d6, 85-end
+    - deletions: 78d6 = 6 nt deleted starting with 78: 1-77, d6, 84-end
     - insertion: 78iATC = after nt 78 inserted seq. ATC
     """
 
@@ -585,7 +583,7 @@ def rev_comp(nt):
     return complement[nt]
 
 
-def transposon_consensus_seq(all_references, reference, fraction='d3', transposon='d3'):
+def transposon_consensus_seq(all_references, reference, fraction='d3', transposon='d3', start_offset=3):
     """
     Determine the consensus sequence for transposon insertion, by analysing the position of d3 or i3 mutations
     :param all_references: dictionary containing all mutation data
@@ -610,14 +608,13 @@ def transposon_consensus_seq(all_references, reference, fraction='d3', transposo
     for prot_mutation in deletions.keys():
         for dna_mutation, count in deletions[prot_mutation]['dna'].items():
             if classify_dna(dna_mutation) == transposon:  # found the simple mutations: d3 or i3
-                start = int(dna_mutation[0][0])
-                # this position refers to the nt BEFORE the indel in 1-count: hence this is the 1st nt of 5 nt site
-                # say the reference is nnn ATG CTG AAC: for start = 1, we want to retrieve ATGCT -> ref[3:8]
+                n1 = int(dna_mutation[0][0]) + start_offset - 2
+                # this position refers to the nt in the first position of  the indel in 1-count:
+                # hence this is the 2nd nt of 5 nt site -> need to retrieve start-1:start+4
+                # Correct for offset: if start = 1: this is ref[start_offset]
+                # Therefore N1 = start_offset + start -2
                 if transposon == 'd3':
-                    trans_seq = str(ref[start+2:start+7].seq)
-                # for insertions we want 4 nt before and 1 after the insertion
-                elif transposon == 'i3':
-                    trans_seq = str(ref[start - 1:start + 4].seq)
+                    trans_seq = str(ref[n1:n1+5].seq)
                 if len(trans_seq) != 5:
                     continue
                 for pos in range(5):
@@ -700,58 +697,59 @@ if __name__ == "__main__":
 
     # On the first run, analyse all *.aln files in the target folder and create a dictionary of errors
     # Structure: all_ref[background][fraction][protein mutation] = all data about the mutations
-    all_ref = count_multiple_fractions(args.folder, args.baseline, args.debug, args.start_offset, args.end_trail)
+    # all_ref = count_multiple_fractions(args.folder, args.baseline, args.debug, args.start_offset, args.end_trail)
     # export_hgvs(all_ref, 'new')
-    with open(args.output +'.p', 'wb') as f:
-        pickle.dump(all_ref, f)
+    # with open(args.output +'.p', 'wb') as f:
+    #     pickle.dump(all_ref, f)
 
-    # # # On subsequent runs, load in the saved data
-    # with open('./S6_d6.p', 'rb') as f:
-    #     all_ref = pickle.load(f)
-    #
+
+    # Later, load in the results for analysis
+    with open(args.output + '.p', 'rb') as f:
+        all_ref = pickle.load(f)
+
     # Now start with statistics
     # 1. Generate CSV files that give overall composition of libraries on protein and DNA level
-    # for cutoff in [1, 10]:
-    #     dna_count, dna_reads = get_dna_composition(all_ref, cutoff)
-    #     protein_count, protein_reads = get_protein_composition(all_ref, cutoff)
-    #     print(cutoff)
-    #     print(dna_count)
-    #     print(dna_reads)
-    #     print(protein_count)
-    #     print(protein_reads)
-    # print()
+    for cutoff in [1, 10]:
+        dna_count, dna_reads = get_dna_composition(all_ref, cutoff)
+        protein_count, protein_reads = get_protein_composition(all_ref, cutoff)
+        print(cutoff)
+        print(dna_count)
+        print(dna_reads)
+        print(protein_count)
+        print(protein_reads)
+    print()
 
     # 2. Generate data for a histogram of tranposon insertion sites: best used for -3 bp library, it shows how many
     #    times a mutation is detected at each DNA position. Spikes corresponds to sites close to tranposon preferred
     #    insertion sequence (GC rich). Main Fig. 3A
-    # histogram = find_transposon_histogram(all_ref, 'S6', baseline='d3_3', transposon='d3')
-    # print('Histogram of transposon bias')
-    # pprint.pprint(histogram)
-    # print()
+    histogram = find_transposon_histogram(all_ref, 'S6', baseline='d3', transposon='d3')
+    print('Histogram of transposon bias')
+    pprint.pprint(histogram)
+    print()
 
     # 3. Find TransDel consensus sequence in -3 bp library - gives number of observations for the NNNNN target site
     # This is used for WebLogo in Fig. 3A
-    # d3_baseline, d3_cons = transposon_consensus_seq(all_ref, args.reference, fraction='d3', transposon='d3')
-    # print('TransDel consensus sequence: baseline counts (reflect GC composition)')
-    # pprint.pprint(d3_baseline)
-    # print('TransDel consensus counts')
-    # pprint.pprint(d3_cons)
-    # print()
-    #
+    d3_baseline, d3_cons = transposon_consensus_seq(all_ref, args.reference, fraction='d3', start_offset=args.start_offset)
+    print('TransDel consensus sequence: baseline counts (reflect GC composition)')
+    pprint.pprint(d3_baseline)
+    print('TransDel consensus counts')
+    pprint.pprint(d3_cons)
+    print()
+
     # # 4. Get position by position ACGT composition of insertions - SI Figure
-    # ins_composition = insertion_composition(all_ref)
-    # print('ACGT composition of insertions, for each position separately')
-    # pprint.pprint(ins_composition)
-    # print()
+    ins_composition = insertion_composition(all_ref)
+    print('ACGT composition of insertions, for each position separately')
+    pprint.pprint(ins_composition)
+    print()
     #
     # 5. Get data for histogram of how often mutations are detected on average - Fig. 3B Poisson-like distribution
-    # detection_histogram = dna_mutation_frequencies(all_ref)
-    # print('How many mutations occur once, twice, etc. per library')
-    # pprint.pprint(detection_histogram)
-    # print()
+    detection_histogram = dna_mutation_frequencies(all_ref)
+    print('How many mutations occur once, twice, etc. per library')
+    pprint.pprint(detection_histogram)
+    print()
     #
     # # 6. How diverse are insertions at each position? Maximum of 64 from 64 possible triplets in NNN, more in i6/i9
-    # ins_freq = insertion_frequencies(all_ref)
-    # print('Diversity of insertions per position')
-    # pprint.pprint(ins_freq)
-    # print()
+    ins_freq = insertion_frequencies(all_ref)
+    print('Diversity of insertions per position')
+    pprint.pprint(ins_freq)
+    print()
