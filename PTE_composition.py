@@ -426,6 +426,6 @@ if __name__ == "__main__":
     # On the first run, analyse all *.aln files in the target folder and create a dictionary of errors
     # Structure: all_ref[background][fraction][protein mutation] = all data about the mutations
     all_ref = count_multiple_fractions(args.folder, args.baseline, args.debug, args.start_offset, args.end_trail)
-    export_hgvs(all_ref, 'new')
+#    export_hgvs(all_ref, 'new')
     with open(args.output +'.p', 'wb') as f:
         pickle.dump(all_ref, f)
