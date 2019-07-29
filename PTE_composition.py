@@ -26,6 +26,7 @@ if sys.version_info[0] < 3:
 
 # Identifying mutations from fasta alignment
 
+
 def read_is_wt(read,ref):
     """
     Check whether read sequence is exactly equal to wt.
@@ -322,15 +323,15 @@ def count_one_fraction(alignment, refname, debug, start_offset, end_trail):
         # trim sequencing read to reference
         ref, read = trim_read(ref, read)
 
-        if read_is_wt(read,ref):
-            if debug:
-                trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
-                print()
-                print(trimmed_read.group(1))
-                printErrors("WT", read, ref, True)
-            continue
+        # if read_is_wt(read, ref):
+        #     if debug:
+        #         trimmed_read = re.search(r'^-+([AGCTN][ACGTN-]+[ACGTN])-+$', str(read))
+        #         print()
+        #         print(trimmed_read.group(1))
+        #         printErrors("WT", read, ref, True)
+        #     continue
 
-        dna_errors, dna_hgvs, prot_erros = None, None, None
+        dna_errors, dna_hgvs, prot_errors = None, None, None
 
         try:
             dna_errors = find_DNA_diff(read, ref, debug, start_offset, end_trail)  # errors = a tuple
