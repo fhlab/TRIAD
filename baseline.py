@@ -19,7 +19,7 @@ from Bio.Data import CodonTable
 
 # Demand Python 3.
 if sys.version_info[0] < 3:
-    print ("Python 3 is required, but you are using Python %i.%i.%i") % (
+    print("Python 3 is required, but you are using Python %i.%i.%i") % (
            sys.version_info[0], sys.version_info[1], sys.version_info[2])
     sys.exit(1)
 
@@ -29,35 +29,30 @@ def main():
     """
     reference = SeqIO.read(sys.argv[1],'fasta', alphabet = IUPAC.ambiguous_dna)
     sequence = str(reference.seq.upper())
-    deletion = [3,6,9]
-    insertion = [3]
+    deletion = [9]
+    insertion = [6]
     codons = list(CodonTable.unambiguous_dna_by_name["Standard"].forward_table.keys())
     codons.sort()
 
+    start_offset = 6
+    end_offset = 3
 
-    with open(reference.name + ".d_baseline.fa", "w") as output:
-        #
-        # for i in range(3,len(reference) - 3):
-        #     for triplet in codons:
-        #         newseq = sequence[:i] + triplet + sequence[i+3:]
-        #         record = SeqRecord(Seq(newseq, reference.seq.alphabet),
-        #                            id="substitution", description="")
-        #         SeqIO.write(record, output, "fasta")
+    # for length in deletion:
+    #     with open(reference.name + ".base_d" + str(length) + ".fa", "w") as output:
+    #         for i in range(start_offset - 1, len(sequence) - length - end_offset):
+    #             newseq = sequence[:i] + sequence[i + length:]
+    #             record = SeqRecord(Seq(newseq, reference.seq.alphabet),
+    #                                id="d" + str(length) + '_' + str(i), description="")
+    #             SeqIO.write(record, output, "fasta")
 
-        for length in deletion:
-            for i in range(len(sequence) - length):
-                newseq = sequence[:i] + sequence[i+length:]
-                record = SeqRecord(Seq(newseq, reference.seq.alphabet),
-                                   id="deletion" + str(length), description="")
-                SeqIO.write(record, output, "fasta")
-
-        # for length in insertion:
-        #     for i in range(len(sequence) - length):
-        #         for triplet in codons:
-        #             newseq = sequence[:i] + triplet + sequence[i:]
-        #             record = SeqRecord(Seq(newseq, reference.seq.alphabet),
-        #                                id="insertion" + str(length), description="")
-        #             SeqIO.write(record, output, "fasta")
+    with open(reference.name + ".base_i6.fa", "w") as output:
+        for i in range(start_offset - 1, len(sequence) - 6 - end_offset):
+            for triplet_1 in codons:
+                for triplet_2 in codons:
+                    newseq = sequence[:i] + triplet_1 + triplet_2 + sequence[i:]
+                    record = SeqRecord(Seq(newseq, reference.seq.alphabet),
+                                       id="insertion6", description="")
+                    SeqIO.write(record, output, "fasta")
 
 
 main()
