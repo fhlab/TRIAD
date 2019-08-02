@@ -10,7 +10,19 @@
 n_pos=10
 
 # one batch
-for i in {0..90..$n_pos}: # last step 
-    generate_baseline_i9.py -r full_fragement.fa -s 200 -e 97 -o S6.base_i9_step${n_pos}_${i}.fa --position_start $i --position_step $n_pos
-    needleall -gapopen 15 -gapextend 0.5 -asequence ~/TRIAD/baseline/full_fragment.fa  -supper1 \
-    -bsequence S6.base_i9_step${n_pos}_${i}.fa -supper2 -aformat3 fasta -outfile S6.base_i9_step${n_pos}_${i}.aln
+for b in 0 100 200 300 400 500 600 700 800 900
+do
+    batch_range=$(seq $b $n_pos $(($b+90)) )
+
+    for i in $batch_range
+        do
+        echo "$i"
+        generate_baseline_i9.py -r full_fragement.fa -s 200 -e 97 -o S6.base_i9_step${n_pos}_${i}.fa --position_start $i --position_step $n_pos
+        needleall -gapopen 15 -gapextend 0.5 -asequence ~/TRIAD/baseline/full_fragment.fa  -supper1 \
+        -bsequence S6.base_i9_step${n_pos}_${i}.fa -supper2 -aformat3 fasta -outfile S6.base_i9_step${n_pos}_${i}.aln &
+        wait
+        done
+done
+
+
+
