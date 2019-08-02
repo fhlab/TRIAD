@@ -27,6 +27,7 @@ for i in range(0, 1005, n_pos): # last step
 """
 
 import sys
+import argparse
 
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -60,8 +61,8 @@ def main():
     codons = list(CodonTable.unambiguous_dna_by_name["Standard"].forward_table.keys())
     codons.sort()
   
-    generation_start =  start_offset - 1 - args.start_offset
-    generation_end = min(len(sequence) - 9 - args.end_trail, generation_start + args.)
+    generation_start =  args.start_offset - 1 + args.position_start
+    generation_end = min(len(sequence) - 9 - args.end_trail, generation_start + args.position_step)
     
     with open(args.output, "w") as output:
         for i in range(generation_start, generation_end):
