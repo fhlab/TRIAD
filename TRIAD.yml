@@ -1,4 +1,4 @@
-name: InDelScanner
+name: TRIAD
 channels:
   - conda-forge
   - defaults
