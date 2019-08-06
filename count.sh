@@ -1,6 +1,6 @@
 #!/bin/bash
 #========
-# USAGE: count_one_fraction.sh reference.fa output_name activity
+# USAGE: count.sh reference.fa output_name activity
 #========
 
 referenceName="$1"
